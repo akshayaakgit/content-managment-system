@@ -15,5 +15,6 @@ public class UserResponse {
 	private String email;
 	private LocalDateTime createdAt;
 	private LocalDateTime lastModifiedAt;
+	private Boolean deleted;
 	
 }

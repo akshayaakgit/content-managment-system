@@ -9,6 +9,7 @@ import com.example.cms.dto.UserRequest;
 import com.example.cms.dto.UserResponse;
 import com.example.cms.entity.User;
 import com.example.cms.exception.UserAlreadyExistExcepption;
+import com.example.cms.exception.UserNotFoundByIdException;
 import com.example.cms.repository.UserRepository;
 import com.example.cms.service.UserService;
 import com.example.cms.utility.ResponseStructure;
@@ -32,37 +33,40 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private UserResponse mapToUserResponse(User user) {
-		return UserResponse.builder().userId(user.getUserId())
-				.email(user.getEmail())
-				.username(user.getUsername())
-				.createdAt(user.getCreatedAt())
-				.lastModifiedAt(user.getLastModifiedAt())			
+		return UserResponse.builder().userId(user.getUserId()).email(user.getEmail()).username(user.getUsername())
+				.createdAt(user.getCreatedAt()).lastModifiedAt(user.getLastModifiedAt()).deleted(user.getDeleted())
 				.build();
 
 	}
 
 	private User mapToUserEntity(UserRequest userRequest, User user) {
-
 		user.setEmail(userRequest.getEmail());
 		user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		user.setUsername(userRequest.getUsername());
+		user.setDeleted(false);
 		return user;
 
 	}
 
-//	@Override
-//	public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@Valid UserRequest user) {
-//		User existingUser = findByEmail(user.getEmail());
-//		if (existingUser != null) {
-//			throw new UserAlreadyExistExcepption("email already exists");
-//		}
-//		User uniqueUser = userRepository.save(user);
-//		return ResponseEntity.ok(responseStructure.setStatus(HttpStatus.OK.value())
-//				.setMessage("User Data Saved Successfully!!").setData(uniqueUser));
-//
-//	}
-//
-//	private User findByEmail(String email) {
-//		return null;
-//	}
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(int userId) {
+		return userRepository.findById(userId).map(user -> {
+			user.setDeleted(true);
+			user = userRepository.save(user);
+			return ResponseEntity.ok(responseStructure.setStatus(HttpStatus.OK.value())
+					.setMessage("User have been founded Successfully!!").setData(mapToUserResponse(user)));
+		}).orElseThrow(() -> new UserNotFoundByIdException("User not found by id"));
+
+//			return ResponseEntity.status(HttpStatus.OK.value()).body(responseStructure.setData(mapToUserResponse(user))
+//					.setMessage("aa").setStatus(HttpStatus.OK.value()));
+
+	}
+
+	@Override
+	public ResponseEntity<ResponseStructure<UserResponse>> getUser(int userId) {
+		return userRepository.findById(userId).map(user -> {
+			return ResponseEntity.ok(responseStructure.setStatus(HttpStatus.OK.value())
+					.setMessage("User have been founded Successfully!!").setData(mapToUserResponse(user)));
+		}).orElseThrow(() -> new UserNotFoundByIdException("User not found by id"));
+	}
 }

@@ -3,7 +3,9 @@ package com.example.cms.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 import com.example.cms.dto.UserRequest;
 import com.example.cms.dto.UserResponse;
 import com.example.cms.entity.User;
+import com.example.cms.service.BlogService;
 import com.example.cms.service.UserService;
 import com.example.cms.utility.ErrorStructure;
 import com.example.cms.utility.ResponseStructure;
@@ -41,4 +44,13 @@ public class UserController {
 		return "hello from cms";
 		
 	}
+	@DeleteMapping("/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> deleteUser(@PathVariable int userId) {
+	return 	userService.deleteUser(userId);
+	}
+	
+	@GetMapping("/users/{userId}")
+	public ResponseEntity<ResponseStructure<UserResponse>> getUser(@PathVariable int userId) {
+	return 	userService.getUser(userId);
+	}	
 }
